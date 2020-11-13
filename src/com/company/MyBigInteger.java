@@ -169,13 +169,17 @@ public class MyBigInteger {
         }
         return result;
     }
-    public MyBigInteger Times(MyBigInteger x) {
-        MyBigInteger result = new MyBigInteger();
-        MyBigInteger resultTemp = new MyBigInteger();
+    public MyBigInteger Times(MyBigInteger x) { // referenced geeksforgeeks.org/multiply-large-numbers-represented-as-strings/
+        int len1 = x.Value.length();
+        int len2 = this.Value.length();
+        int index1 = 0;
+        int index2 = 0;
+        int why = 0;
+        int[] result = new int[len1+len2];
+        MyBigInteger resultZero = new MyBigInteger("0");
         signCheck = false;
         int prod, val, valX;
         int factorCarry = 0;
-        int addition = 0;
 
         if(this.Value.charAt(0) == '-' && x.Value.charAt(0) != '-'){
             signCheck = true;
@@ -188,37 +192,40 @@ public class MyBigInteger {
             this.Value = this.Value.substring(1);
             x.Value = x.Value.substring(1);
         }
-        padZeros(x);
-        for (int i = x.Value.length() - 1; i >= 0; i--){
-            valX = ConvertToInt(x.Value.charAt(i));
-            for(int j = this.Value.length() -1; j >= 0; j--){
-                val = ConvertToInt(this.Value.charAt(j));
-                prod = val * valX + factorCarry;
-                if(prod > 9){
-                    factorCarry = prod / 10;
-                    prod %= 10;
-                }else{
-                    factorCarry = 0;
-                }
-                char temp = ConvertToChar(prod);
-                String insertStr = String.valueOf(temp);
-                if (j == x.Value.length() -1){
-                    resultTemp.Value = insertStr;
-                }else{
-                    resultTemp.Value += insertStr;
-                }
+        //padZeros(x);
+        for (int i = len1 - 1; i >= 0; i--){
+            factorCarry = 0;
+            valX = ConvertToChar(x.Value.charAt(i))- '0';
+            index2 = 0;
+            for(int j = len2 -1; j >= 0; j--){
+                val = ConvertToChar(this.Value.charAt(j)) -'0';
+                prod = val * valX + result[index1 + index2] + factorCarry;
+                factorCarry = prod / 10;
+                result[index1 + index2] = prod % 10;
+                index2++;
+
             }
-            for (int k = 0; k < addition; k++){
-                resultTemp.Value += "0";
+            if(factorCarry > 0){
+                result[index1 + index2] += factorCarry;
             }
-            result = result.Plus(resultTemp);
-            System.out.print(Integer.parseInt(resultTemp.Value()));
-            resultTemp.Value = "0";
-            addition++;
+            index1++;
         }
 
-        removeZeros(result);
-        return result;
+        int i = result.length -1;
+        while(i >= 0 && result[i] == 0) {
+            i--;
+        }
+        if (i == -1){
+            return resultZero;
+        }
+        String s = "";
+        while(i >= 0){
+            s += result[i--];
+        }
+        System.out.print(s);
+        MyBigInteger noMoreZeros = new MyBigInteger(s);
+        noMoreZeros = removeZeros(noMoreZeros);
+        return noMoreZeros;
     }
 
     public  String padZeros(MyBigInteger x) {

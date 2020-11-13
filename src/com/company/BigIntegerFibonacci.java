@@ -5,8 +5,9 @@ import java.lang.management.ThreadMXBean;
 import java.util.Random;
 
 public class BigIntegerFibonacci {
-    public static MyBigInteger bigFibLoop(MyBigInteger x)                              // looping fibonacci function
+    public static MyBigInteger bigFibLoop(int xSmall)                              // looping fibonacci function
     {
+        MyBigInteger x = new MyBigInteger(Integer.toString(xSmall));
         MyBigInteger a = new MyBigInteger("0");
         MyBigInteger b = new MyBigInteger("1");
         MyBigInteger temp = new MyBigInteger();
@@ -26,7 +27,8 @@ public class BigIntegerFibonacci {
         return b;
     }
 
-    public static MyBigInteger bigFibMatrix(MyBigInteger x) {
+    public static MyBigInteger bigFibMatrix(int xSmall) {
+        MyBigInteger x = new MyBigInteger(Integer.toString(xSmall));
         MyBigInteger[][] exponentialMatrix = {{new MyBigInteger("1"), new MyBigInteger("1")},
                 {new MyBigInteger("1"), new MyBigInteger("0")}};
         MyBigInteger[][] resultMatrix = {{new MyBigInteger("1"), new MyBigInteger("1")},
@@ -60,6 +62,7 @@ public class BigIntegerFibonacci {
 
             resultMatrix[row][col2] = new MyBigInteger(result.Value());
         }
+
         return resultMatrix;
     }
 
@@ -173,6 +176,71 @@ public class BigIntegerFibonacci {
             N = N * 2;
             counter++;
 
+        }
+    }
+    public static void fibResults(){
+        int N;
+        int x;
+        int y;
+        int resultTime = 0;
+        long startTime = 0;
+        long endTime = 0;
+        long maxRunTime = 24000000L;
+        long endFibRecurRunTime = 0;
+        int maxFibRecurLoops = 100;
+        MyBigInteger bigResult = new MyBigInteger();
+        long[] fibLoopTime = new long[93];                          //Keeps the times for fibLoop
+        long[] fibMatrixTime = new long[93];                        //Keeps the times for fibMatrix
+        int numberLoops = 69000;                                    // the number of loops for to run
+
+
+        System.out.printf("FibLoop\n");
+        System.out.printf("| %10s| %10s| %22s| %15s| %10s| %10s|\n", "N", "X", "Fib(x)", "Time", "DRation", "Exp DRatio");
+        for (N = 1; N < 10; N++) {                                  //Nested loops that will run through FibLoop
+            for (x = (int) Math.pow(2, (double) N - 1); x < Math.pow(2, N) && x < 93; x++) {
+                for (y = 0; y < numberLoops; y++) {                 //runs until max loops are reached
+                    startTime = getCpuTime();
+                    bigResult = bigFibLoop(x);                        //Measures the time the function take
+                    endTime = getCpuTime();
+                    fibLoopTime[x] += endTime - startTime;
+                }
+                for(int i = 0; i < bigResult.Value.length(); i++) {
+                    resultTime = bigResult.ConvertToInt(bigResult.Value.charAt(i));
+                }
+                fibLoopTime[x] = fibLoopTime[x] / numberLoops;
+                System.out.printf("| %10s| %10s| %22s| %15s|", N, x, resultTime, fibLoopTime[x]);
+                if (x != 0 && x % 2 == 0) {                         //Only prints ratios if an even number
+                    float doubling = (float) fibLoopTime[x] / fibLoopTime[x / 2];
+                    double expectedDoubling = 2;
+                    System.out.printf(" %10.2f| %10.2f|\n", doubling, expectedDoubling);
+                } else {
+                    System.out.printf(" %10s| %10s|\n", "NA", "NA");
+                }
+            }
+        }
+        System.out.printf("FibMatrix\n");
+        System.out.printf("| %10s| %10s| %22s| %15s| %10s| %10s|\n", "N", "X", "Fib(x)", "Time", "DRation", "Exp DRatio");
+        for (N = 1; N < 10; N++) {                                  //Nested loops that will run through FibMatrix
+            for (x = (int) Math.pow(2, (double) N - 1); x < Math.pow(2, N) && x < 93; x++) {
+                for (y = 0; y < numberLoops; y++) {                 //runs until max loops are reached
+                    startTime = getCpuTime();
+                    bigResult = bigFibMatrix(x);                      //Measures the time the function take
+                    endTime = getCpuTime();
+                    fibMatrixTime[x] += endTime - startTime;
+                }
+                for(int i = 0; i < bigResult.Value.length(); i++) {
+                    resultTime = bigResult.ConvertToInt(bigResult.Value.charAt(i));
+                }
+                fibMatrixTime[x] = fibMatrixTime[x] / numberLoops;
+                System.out.printf("| %10s| %10s| %22s| %15s|", N, x, resultTime, fibMatrixTime[x]);
+                if (x != 0 && x % 2 == 0) {                         //Only prints ratios if an even number
+                    float doubling = (float) fibMatrixTime[x] / fibMatrixTime[x / 2];
+                    double expectedDoubling = (Math.log(N)/Math.log(2)) / (Math.log(N/2)/Math.log(2));
+                    System.out.printf(" %10.2f| %10.2f|\n", doubling, expectedDoubling);
+                } else {
+                    System.out.printf(" %10s| %10s|\n", "NA", "NA");
+                }
+            }
         }
     }
 }
